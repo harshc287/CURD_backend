@@ -23,7 +23,7 @@ exports.createProduct = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.findAll();
 
     res.status(200).json({ message: "All Products", products });
   } catch (error) {
@@ -33,7 +33,7 @@ exports.getProducts = async (req, res) => {
 
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findByPk(req.params.id);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -46,13 +46,14 @@ exports.getProductById = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const product = await Product.findByPk(req.params.id);
+
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    await product.update(req.body);
 
     res.status(200).json({ message: "product updated successfully", product });
   } catch (error) {
@@ -62,11 +63,12 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-
+    const product = await Product.findByPk(req.params.id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+    await product.destroy();
+    
     res.status(200).json({ message: "product deleted successfully", product });
   } catch (error) {
     res.status(500).json({ message: "server error", error: error.message });

@@ -1,5 +1,5 @@
 const express = require('express');
-const connectDB = require('./config/db');
+const {connectDB, sequelize} = require('./config/db');
 const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes')
 const productRoutes = require('./routes/productRoutes')
@@ -15,8 +15,20 @@ app.use(cors())
 app.use("/api/users", userRoutes)
 app.use("/api/products", productRoutes)
 
+const startServer = async () => {
 
-connectDB()
+    try {
+        await connectDB();
+
+            await sequelize.sync({ force: false }); 
+            console.log('Database synchronized successfully');
+        
+    } catch (error) {
+        console.error('Unable to connect to the database:', error.message);
+    }
+}  
+
+startServer();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
